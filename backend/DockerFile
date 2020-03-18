@@ -1,0 +1,32 @@
+FROM waleedka/modern-deep-learning
+
+ENV APP_DIR /app
+ENV MRCNN_DIR $APP_DIR/mrcnn
+ENV NOTEBOOK mrcnn-predict.ipynb
+
+WORKDIR $APP_DIR
+
+RUN apt-get update && apt-get install -y 
+
+RUN pip install --upgrade pip
+
+RUN pip install --upgrade jupyter
+RUN pip install --upgrade jupyter_kernel_gateway
+EXPOSE 8888 9090
+
+## Downloading Coco pre-trained weights
+RUN wget -O $APP_DIR/mask_rcnn_coco.h5 https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5
+
+## Cloning repo
+RUN git clone https://github.com/matterport/Mask_RCNN.git $MRCNN_DIR
+
+
+RUN cd $MRCNN_DIR && \
+    pip install -r requirements.txt
+
+RUN cd $MRCNN_DIR && \
+    python3 setup.py install
+
+ADD $NOTEBOOK $APP_DIR
+
+CMD jupyter kernelgateway --KernelGatewayApp.api='kernel_gateway.notebook_http' --KernelGatewayApp.ip=0.0.0.0 --KernelGatewayApp.port=9090 --KernelGatewayApp.seed_uri=$NOTEBOOK --KernelGatewayApp.allow_origin='*'

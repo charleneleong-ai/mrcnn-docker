@@ -1,0 +1,12 @@
+
+## Mac
+.DS_Store
+
+## Weights
+*.h5
+
+*.ipynb_checkpoints
+
+**/uploads/
+
+*.pem
